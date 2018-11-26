@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +30,7 @@ namespace LoreBot
                 .AddSingleton(_commands)
                 .BuildServiceProvider();
 
-            string botToken = "NTEwOTE1MjI4NjA3NzA5MjA0.DsjShQ.RSoQfNvhDVqMLuwCg4_YbNV2H4E";
+            var botToken = GetToken();
 
             //event subscription
             _client.Log += Log;
@@ -80,6 +81,25 @@ namespace LoreBot
                 if (!result.IsSuccess)
                     Console.WriteLine(result.ErrorReason);
             }
+        }
+
+        private static string GetToken()
+        {
+            var token = string.Empty;
+
+            var tokenFilePath = Path.Combine(Directory.GetCurrentDirectory(), "token.txt");
+
+            if (!File.Exists(tokenFilePath)) return token;
+
+            var tokenFile = new FileInfo("token.txt");
+
+            // 1MB is more than enough
+            if (tokenFile.Length >= 1024*1024) return token;
+
+            using (var f = tokenFile.OpenText())
+                token = f.ReadLine();
+
+            return token;
         }
     }
 }
